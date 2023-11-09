@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "simple-fastapi"
+version = "0.1.0"
+description = ""
+authors = ["Diwash Bhandari <diwash.bhandari@codavatar.tech>"]
+readme = "README.md"
+packages = [{include = "simple_fastapi"}]
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.104.1"}
+sqlalchemy = "^2.0.23"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
