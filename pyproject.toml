@@ -10,6 +10,9 @@ packages = [{include = "simple_fastapi"}]
 python = "^3.11"
 fastapi = {extras = ["all"], version = "^0.104.1"}
 sqlalchemy = "^2.0.23"
+twilio = "^8.10.1"
+requests = "^2.31.0"
+faker = "^20.0.0"
 
 
 [build-system]

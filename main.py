@@ -5,6 +5,7 @@ from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 
 from database import get_db
+from mail import send_email
 from schemas import Book, User
 from core import BaseRepository
 from models import BookDB, UserDB
@@ -13,6 +14,13 @@ app = FastAPI()
 
 book_repository = BaseRepository(BookDB)
 user_repository = BaseRepository(UserDB)
+
+
+@app.get("/", status_code=200)
+async def home():
+    data_obj = {"title": "Hello World", "name": "John Doe"}
+    await send_email(template_name="v2/demo.html", data_obj=data_obj)
+    return {"message": "Hello World"}
 
 
 @app.get("/books", response_model=List[Book])
