@@ -1,26 +1,34 @@
 # main.py
 from typing import List
 
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException, Request
+from fastapi.exception_handlers import http_exception_handler
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
-from database import get_db
-from mail import send_email
-from schemas import Book, User
 from core import BaseRepository
+from custom_middleware import ExceptionMiddleware
+from database import get_db
+from exception_handler import custom_validation_exception_handler
+from logger_info import logger
 from models import BookDB, UserDB
+from schemas import Book, User
 
 app = FastAPI()
+app.exception_handler(RequestValidationError)(custom_validation_exception_handler)
+app.exception_handler(HTTPException)(http_exception_handler)
+app.add_middleware(ExceptionMiddleware)
 
 book_repository = BaseRepository(BookDB)
 user_repository = BaseRepository(UserDB)
 
 
-@app.get("/", status_code=200)
-async def home():
-    data_obj = {"title": "Hello World", "name": "John Doe"}
-    await send_email(template_name="v2/demo.html", data_obj=data_obj)
-    return {"message": "Hello World"}
+@app.get("/health-checker", status_code=200)
+async def check_health():
+    logger.info("Server is running")
+    return 5 / 0
+    return JSONResponse(status_code=200, content={"message": "Server is running"})
 
 
 @app.get("/books", response_model=List[Book])
@@ -73,7 +81,33 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     user_repository.delete(db=db, id=user_id)
 
 
+@app.post("/process_request")
+async def process_request(request: Request):
+    # Check Content-Type
+    content_type = request.headers.get("Content-Type")
+
+    if not content_type or "application/json" not in content_type:
+        raise HTTPException(status_code=415, detail="Unsupported Media Type")
+
+    # Get the request body as a UTF-8 string
+    try:
+        body_bytes = await request.body()
+        if body_bytes:
+            body_text = body_bytes.decode("utf-8")
+        else:
+            body_text = body_bytes
+    except UnicodeDecodeError:
+        raise HTTPException(status_code=400, detail="Invalid UTF-8 encoding")
+
+    print("body_text", body_text)
+
+    return {"message": "Request processed successfully"}
+
+
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, port=8001)
+    uvicorn.run(
+        "main:app",
+        port=8001,
+    )

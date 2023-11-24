@@ -21,23 +21,6 @@ message = {
     ],
 }
 
-SLACK_SUBSCRIPTION_WEBHOOK_URL = ""
-
-
-async def send_message(message):
-    subscription_webhook = SLACK_SUBSCRIPTION_WEBHOOK_URL
-    headers = {"Content-type": "application/json"}
-
-    async with httpx.AsyncClient() as client:
-        response = await client.post(
-            subscription_webhook, json=message, headers=headers
-        )
-        print(response.status_code)
-        print(response.text)
-
-
-# asyncio.run(send_message(message))
-
 
 from datetime import datetime
 from faker import Faker
@@ -138,4 +121,62 @@ message = {
 }
 
 # Print the generated message
-print(message)
+# print(message)
+
+
+message_error = {
+    "channel": "dialaxy-log",
+    "attachments": [
+        {
+            "title": "ZeroDivisionError",
+            "color": "danger",
+            "fields": [
+                {"title": "Level", "value": "ERROR", "short": True},
+                {
+                    "title": "Server Name",
+                    "value": "\n                        127.0.0.1-local\n                        ",
+                    "short": True,
+                },
+                {"title": "Method", "value": "GET", "short": True},
+                {"title": "Path", "value": "/api/v1/countries/", "short": True},
+                {
+                    "title": "User",
+                    "value": "Diwash Bhandari(mayahold@getnada.com)",
+                    "short": True,
+                },
+                {"title": "Status Code", "value": 500, "short": True},
+                {"title": "Date", "value": "Fri Nov 24 02:56:21 2023", "short": True},
+                {
+                    "title": "User Agent",
+                    "value": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36",
+                    "short": True,
+                },
+            ],
+        },
+        {
+            "color": "danger",
+            "title": "Error Details",
+            "text": "division by zero",
+            "footer": "ZeroDivisionError",
+            "ts": 1700794581.8972974,
+        },
+    ],
+}
+
+
+SLACK_WEBHOOK_URL = ""
+
+
+async def send_message(message):
+    subscription_webhook = SLACK_WEBHOOK_URL
+    headers = {"Content-type": "application/json"}
+
+    async with httpx.AsyncClient() as client:
+        response = await client.post(
+            subscription_webhook, json=message, headers=headers
+        )
+        print(response.status_code)
+        print(response.text)
+
+
+asyncio.run(send_message(message_error))
