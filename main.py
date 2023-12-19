@@ -1,4 +1,5 @@
 # main.py
+import json
 from typing import List
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -104,10 +105,20 @@ async def process_request(request: Request):
     return {"message": "Request processed successfully"}
 
 
+@app.post("/env-alert/", status_code=200)
+async def env_alert(request: Request):
+    body_bytes = await request.body()
+    json_data = json.loads(body_bytes.decode("utf-8"))
+    print(json_data)
+    return JSONResponse(status_code=200, content=json_data)
+
+
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
         "main:app",
         port=8001,
+        reload=True,
+        workers=2,
     )
